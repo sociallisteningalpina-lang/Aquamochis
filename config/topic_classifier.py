@@ -4,90 +4,86 @@
 Clasificador de Temas para Comentarios de Campañas
 Personalizable por campaña/producto
 """
-
 import re
 from typing import Callable
 
-
 def create_topic_classifier() -> Callable[[str], str]:
     """
-    Retorna una función de clasificación de temas personalizada para esta campaña.
-    
-    Returns:
-        function: Función que toma un comentario (str) y retorna un tema (str)
-    
-    Usage:
-        classifier = create_topic_classifier()
-        tema = classifier("¿Dónde puedo comprar este producto?")
-        # tema = 'Preguntas sobre el Producto'
+    Clasificador personalizado para la campaña Aquamochis de Alpina.
     """
     
     def classify_topic(comment: str) -> str:
-        """
-        Clasifica un comentario en un tema específico basado en patrones regex.
-        
-        Args:
-            comment: Texto del comentario a clasificar
-            
-        Returns:
-            str: Nombre del tema asignado
-        """
         comment_lower = str(comment).lower()
         
-        # CATEGORÍA 1: Preguntas sobre el Producto
+        # CATEGORÍA 1: Coleccionismo y Juguetes (El núcleo de la campaña)
         if re.search(
-            r'\bprecio\b|\bcu[aá]nto vale\b|d[oó]nde|c[oó]mo consigo|'
-            r'duda|pregunta|comprar|tiendas|disponible|sirve para|'
-            r'c[oó]mo se toma|tiene az[uú]car|valor',
+            r'mochi|aqua|colecci|tengo|todos|falta|foca|mantarraya|'
+            r'muñequito|juguete|animal|marino|obsesion|pece|feca|pulpo', 
             comment_lower
         ):
-            return 'Preguntas sobre el Producto'
+            return 'Coleccionismo y Juguetes'
         
-        # CATEGORÍA 2: Comparación con Kéfir Casero/Artesanal
+        # CATEGORÍA 2: Críticas de Salud e Ingredientes (Lactosuero/Azúcar)
         if re.search(
-            r'b[úu]lgaros|n[oó]dulos|en casa|casero|artesanal|'
-            r'preparo yo|vendo el cultivo|hecho por mi',
+            r'lactosuero|suero|az[úu]car|veneno|aditivo|ops|sello|'
+            r'salud|ingrediente|nutrici|enfermedad|diabetes|grasa', 
             comment_lower
         ):
-            return 'Comparación con Kéfir Casero/Artesanal'
+            return 'Salud e Ingredientes'
         
-        # CATEGORÍA 3: Ingredientes y Salud
+        # CATEGORÍA 3: Distribución y Disponibilidad (Oxxo, repetidos, falta de stock)
         if re.search(
-            r'aditivos|almid[oó]n|preservantes|lactosa|microbiota|'
-            r'flora intestinal|saludable|bacterias|vivas|gastritis|'
-            r'colon|helicobacter|az[uú]car añadid[oa]s',
+            r'oxxo|ara|tienda|comprar|conseguir|donde|no hay|repetido|'
+            r'lote|distribuci|no lleg[oó]|cartagena|turbaco|vender', 
             comment_lower
         ):
-            return 'Ingredientes y Salud'
+            return 'Distribución y Disponibilidad'
         
-        # CATEGORÍA 4: Competencia y Disponibilidad
+        # CATEGORÍA 4: Nostalgia y Sugerencias (Pedidos de juguetes antiguos)
         if re.search(
-            r'pasco|\b[eé]xito\b|\bara\b|ol[ií]mpica|d1|'
-            r'copia de|no lo venden|no llega|no lo encuentro|no hay en',
+            r'antes|antiguo|vuelvan|ninjas|guerreros|ogros|2015|'
+            r'fushiball|pega pega|tradici|recuerdo|infancia', 
             comment_lower
         ):
-            return 'Competencia y Disponibilidad'
+            return 'Nostalgia y Sugerencias'
         
-        # CATEGORÍA 5: Opinión General del Producto
+        # CATEGORÍA 5: Precio y Valor (Quejas por el costo)
         if re.search(
-            r'rico|bueno|excelente|gusta|mejor|delicioso|espectacular|'
-            r'encanta|s[úu]per|feo|horrible|mal[ií]simo|sabe a',
+            r'caro|precio|valor|costo|4\.?500|exageraci|ruina|plata', 
             comment_lower
         ):
-            return 'Opinión General del Producto'
+            return 'Precio y Valor'
         
-        # CATEGORÍA 6: Fuera de Tema / No Relevante
+        # CATEGORÍA 6: Situación Institucional y Social (Contexto planta/salario)
         if re.search(
-            r'am[eé]n|jajaja|receta|gracias|bendiciones',
+            r'planta|esclavista|instalaci|salario|m[ií]nimo|digna|'
+            r'calles|protesta|explotando', 
             comment_lower
-        ) or len(comment_lower.split()) < 3:
-            return 'Fuera de Tema / No Relevante'
+        ):
+            return 'Situación Institucional y Social'
         
-        # CATEGORÍA DEFAULT: Otros
+        # CATEGORÍA 7: Sentimiento Positivo / Feedback General
+        if re.search(
+            r'amo|lindo|hermoso|arte|bendici|gracias|excelente|mejor', 
+            comment_lower
+        ):
+            return 'Sentimiento Positivo'
+        
+        # CATEGORÍA 8: Fuera de Tema / No Relevante
+        if re.search(
+            r'am[eé]n|jajaja|sticker|[0-9]{4}|ex[ -]novio|elon musk', 
+            comment_lower
+        ) or len(comment_lower.split()) < 2:
+            return 'Fuera de Tema / Otros'
+        
         return 'Otros'
     
     return classify_topic
 
+# Ejemplo de uso:
+classifier = create_topic_classifier()
+print(classifier("Yogo Yogo no es yogur es lactosuero")) # Retorna: Salud e Ingredientes
+print(classifier("me salieron 3 repetidos en el oxxo")) # Retorna: Distribución y Disponibilidad
 
 # ============================================================================
 # METADATA DE LA CAMPAÑA (OPCIONAL)
